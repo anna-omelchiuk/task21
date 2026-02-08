@@ -2,6 +2,7 @@
 #include <cstring>
 #include <iostream>
 #include <cstdio>
+#include <cctype>
 
 #define _CRT_SECURE_NO_WARNINGS
 
@@ -168,6 +169,90 @@ void PhoneBook::Input(PhoneBook book[], int& count, int max)
 	cout << "Данные добавлены!\n";
 }
 
+void PhoneBook::SearchByName(const PhoneBook book[], int count) 
+{
+	if (count == 0) 
+	{
+		cout << "\nТелефонная книга пуста!\n";
+		return;
+	}
+
+	char query[100];
+	cout << "\nВведите часть ФИО для поиска: ";
+	cin.getline(query, sizeof(query));
+
+	if (query[0] == '\0') 
+	{
+		cout << "Поиск отменён.\n";
+		return;
+	}
+
+	bool foundAny = false;
+	cout << "\nРезультаты поиска:\n";
+
+	for (int i = 0; i < count; i++) 
+	{
+		const char* fname = book[i].GetFullName();
+		if (fname && fname[0] != '\0' && ContainsIgnoreCase(fname, query)) 
+		{
+			cout << "\nКонтакт #" << (i + 1) << ":\n";
+			book[i].Output();
+			foundAny = true;
+		}
+	}
+
+	if (!foundAny) 
+	{
+		cout << "Ничего не найдено.\n";
+	}
+}
+
+void PhoneBook::DeleteContact(PhoneBook book[], int& count) 
+{
+	if (count == 0) 
+	{
+		cout << "\nТелефонная книга пуста!\n";
+		return;
+	}
+
+	int num;
+	cout << "\nВсего контактов: " << count << "\n";
+	cout << "Введите номер контакта для удаления (1 - " << count << "): ";
+	cin >> num;
+	cin.ignore(10000, '\n');
+
+	if (num < 1 || num > count) 
+	{
+		cout << "Неверный номер!\n";
+		return;
+	}
+
+	int index = num - 1;
+
+	cout << "\nУдаляется контакт:\n";
+	book[index].Output();
+
+	cout << "\nПодтвердить удаление? (y / n): ";
+	char confirm;
+	cin >> confirm;
+	cin.ignore(10000, '\n');
+
+	if (confirm != 'y' && confirm != 'Y') 
+	{
+		cout << "Удаление отменено.\n";
+		return;
+	}
+
+	for (int i = index; i < count - 1; i++) 
+	{
+		book[i] = book[i + 1];
+	}
+
+	count--;
+	cout << "Контакт удалён.\n";
+}
+
+
 void PhoneBook::SaveToFile(const PhoneBook book[], int count, const char* filename)
 {
 	FILE* file = nullptr;
@@ -250,23 +335,45 @@ void PhoneBook::LoadFromFile(PhoneBook book[], int& count, int max, const char* 
 	cout << "Данные загружены из файла!\n";
 }
 
-char* PhoneBook::CopyString(const char* src) const
+bool PhoneBook::ContainsIgnoreCase(const char* str, const char* substr) 
 {
-	if (!src || src[0] == '\0')
-		return nullptr;
+	if (!str || !substr || substr[0] == '\0')
+	{
+		return false;
+	}
 
-	int length = StringLength(src);
-	char* dest = new char[length + 1];
-	strcpy_s(dest, length + 1, src);
-	return dest;
+	char buf1[512] = { 0 };
+	char buf2[512] = { 0 };
+
+	int i = 0;
+	while (str[i] && i < 511) 
+	{
+		buf1[i] = (char)tolower((unsigned char)str[i]);
+		i++;
+	}
+	buf1[i] = '\0';
+
+	i = 0;
+	while (substr[i] && i < 511) 
+	{
+		buf2[i] = (char)tolower((unsigned char)substr[i]);
+		i++;
+	}
+	buf2[i] = '\0';
+
+	return strstr(buf1, buf2) != nullptr;
 }
 
-
-
-int PhoneBook::StringLength(const char* str) const
+char* PhoneBook::CopyString(const char* src) const 
 {
-	int length = 0;
-	while (str && str[length] != '\0')
-		length++;
-	return length;
+	if (!src) return nullptr;
+	size_t len = strlen(src) + 1;
+	char* dst = new char[len];
+	strcpy_s(dst, len, src);
+	return dst;
+}
+
+int PhoneBook::StringLength(const char* str) const 
+{
+	return str ? static_cast<int>(strlen(str)) : 0;
 }

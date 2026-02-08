@@ -33,8 +33,12 @@ public:
 	void Output() const;
 	void Input(PhoneBook book[], int& count, int max);
 
+	static void SearchByName(const PhoneBook book[], int count);
+	static void DeleteContact(PhoneBook book[], int& count);
 	static void SaveToFile(const PhoneBook book[], int count, const char* filename);
 	static void LoadFromFile(PhoneBook book[], int& count, int max, const char* filename);
+
+	static bool ContainsIgnoreCase(const char* str, const char* substr);
 
 private:
 	char* CopyString(const char* src) const;
