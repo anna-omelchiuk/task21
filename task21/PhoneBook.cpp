@@ -335,7 +335,7 @@ void PhoneBook::LoadFromFile(PhoneBook book[], int& count, int max, const char* 
 	cout << "Данные загружены из файла!\n";
 }
 
-bool PhoneBook::ContainsIgnoreCase(const char* str, const char* substr) 
+bool PhoneBook::ContainsIgnoreCase(const char* str, const char* substr) // Тут меня исправлял Copilot так как с моей реализацией были проблемы при компиляции
 {
 	if (!str || !substr || substr[0] == '\0')
 	{
@@ -373,7 +373,7 @@ char* PhoneBook::CopyString(const char* src) const
 	return dst;
 }
 
-int PhoneBook::StringLength(const char* str) const 
+int PhoneBook::StringLength(const char* str) const // Тут аналогично 
 {
 	return str ? static_cast<int>(strlen(str)) : 0;
 }
